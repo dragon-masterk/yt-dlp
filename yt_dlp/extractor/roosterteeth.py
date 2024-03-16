@@ -77,6 +77,7 @@ class RoosterTeethBaseIE(InfoExtractor):
             'episode_number': int_or_none(attributes.get('number')),
             'episode_id': episode_id,
             'channel_id': attributes.get('channel_id'),
+            'channel': attributes.get('channel_slug'),
             'duration': int_or_none(attributes.get('length')),
             'release_timestamp': parse_iso8601(attributes.get('original_air_date')),
             'thumbnails': thumbnails,
