@@ -44,6 +44,13 @@ class RoosterTeethBaseIE(InfoExtractor):
                         msg += ': ' + error
             self.report_warning(msg)
 
+    def _get_perfernce(self, name):
+        if name == "large":    return 4
+        elif name == "medium": return 3
+        elif name == "small":  return 2
+        elif name == "thumb":  return 1
+        else:                  return 0
+
     def _extract_video_info(self, data):
         thumbnails = []
         for image in traverse_obj(data, ('included', 'images')):
@@ -52,6 +59,7 @@ class RoosterTeethBaseIE(InfoExtractor):
             thumbnails.extend([{
                 'id': name,
                 'url': url,
+                'preference': self._get_perfernce(name)
             } for name, url in (image.get('attributes') or {}).items() if url_or_none(url)])
 
         attributes = data.get('attributes') or {}
