@@ -114,6 +114,24 @@ class TestFormatSelection(unittest.TestCase):
         downloaded = ydl.downloaded_info_dicts[0]
         self.assertEqual(downloaded['ext'], 'webm')
 
+    def test_chapters_are_rebased_for_download_range(self):
+        ydl = YDL()
+        ydl.params['download_ranges'] = lambda *_: [{'start_time': 15, 'end_time': 25}]
+        info_dict = _make_result([{'url': TEST_URL, 'format_id': 'test', 'ext': 'mp4'}],
+                                 duration=60, chapters=[
+                                     {'start_time': 0, 'end_time': 10, 'title': 'before'},
+                                     {'start_time': 10, 'end_time': 20, 'title': 'first'},
+                                     {'start_time': 20, 'end_time': 30, 'title': 'second'},
+                                     {'start_time': 30, 'end_time': 60, 'title': 'after'},
+                                 ])
+
+        ydl.process_ie_result(info_dict)
+
+        self.assertEqual(ydl.downloaded_info_dicts[0]['chapters'], [
+            {'start_time': 0, 'end_time': 5, 'title': 'first'},
+            {'start_time': 5, 'end_time': 10, 'title': 'second'},
+        ])
+
     def test_format_selection(self):
         formats = [
             {'format_id': '35', 'ext': 'mp4', 'preference': 0, 'url': TEST_URL},
