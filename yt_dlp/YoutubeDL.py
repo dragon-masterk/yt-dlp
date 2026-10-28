@@ -3119,12 +3119,21 @@ class YoutubeDL:
                 if end_time == float('inf') or end_time > offset + duration + 1:
                     end_time = None
                 if chapter or offset:
+                    section_start = offset + chapter.get('start_time', 0)
                     new_info.update({
-                        'section_start': offset + chapter.get('start_time', 0),
+                        'section_start': section_start,
                         'section_end': end_time,
                         'section_title': chapter.get('title'),
                         'section_number': chapter.get('index'),
                     })
+                    if new_info.get('chapters'):
+                        section_end = end_time if end_time is not None else offset + duration
+                        new_info['chapters'] = [{
+                            **c,
+                            'start_time': max(c['start_time'], section_start) - section_start,
+                            'end_time': min(c['end_time'], section_end) - section_start,
+                        } for c in new_info['chapters']
+                            if c['end_time'] > section_start and c['start_time'] < section_end]
                 downloaded_formats.append(new_info)
                 try:
                     self.process_info(new_info)
